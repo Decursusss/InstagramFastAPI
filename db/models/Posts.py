@@ -15,5 +15,5 @@ class DbPosts(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship('DbUser', back_populates='posts')
     
-    comment = relationship('DbComment', back_populates='post')
+    comments = relationship('DbComment', back_populates='post')
 

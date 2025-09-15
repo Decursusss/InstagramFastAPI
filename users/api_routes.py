@@ -22,6 +22,5 @@ def get_user_by_id(id:int, db: Session = Depends(get_db)):
 def create_new_user(data:UserSchema, db: Session = Depends(get_db)):
     return UserService.create_new_user(db, data)
 
-@router.post('/login')
-def login(username: str, password: str, db: Session = Depends(get_db)):
-    return UserService.login_user(db, username, password)
+
+

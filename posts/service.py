@@ -30,11 +30,14 @@ class PostService:
         return new_post
     
     @staticmethod
-    def delete_post_by_id(db: Session, id: int):
+    def delete_post_by_id(db: Session, id: int, current_user):
         result = db.execute(select(DbPosts).where(DbPosts.id == id))
         result = result.scalar_one_or_none()
         if not result:
             raise HTTPException(status_code=404, detail=f"Cannot delete post with id {id} not found")
+        
+        if result.user_id != current_user.id:
+            raise HTTPException(status_code=404, detail="U cannot delete not your own posts")
         
         db.delete(result)
         db.commit()

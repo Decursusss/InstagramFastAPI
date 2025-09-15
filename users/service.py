@@ -35,16 +35,24 @@ class UserService:
         return result
     
     @staticmethod
-    def login_user(db:Session, username: str, password: str):
-        result = db.execute(select(DbUser).where(DbUser.username == username))
+    def login_user(db:Session, request):
+        result = db.execute(select(DbUser).where(DbUser.username == request.username))
         result = result.scalar_one_or_none()
         if not result:
-            raise HTTPException(status_code=404, detail=f"User {username} not found ")
+            raise HTTPException(status_code=404, detail=f"User {request.username} not found ")
         
-        if not Hash.verify(result.password, password):
+        if not Hash.verify(result.password, request.password):
             raise HTTPException(status_code=404, detail="Password is not correct")
         
-        return True
+        from oauth.oauth2 import create_access_token
+        access_token = create_access_token(data={'username': result.username})
+        
+        return {
+            'access_token': access_token,
+            'toke_type': 'bearer',
+            'user_id': result.id,
+            'username': result.username
+        }
         
     @staticmethod
     def get_user_by_id(db:Session, id:int):
@@ -55,3 +63,11 @@ class UserService:
         
         return result
         
+    @staticmethod
+    def get_user_by_username(db: Session, username: str):
+        result = db.execute(select(DbUser).where(DbUser.username == username))
+        result = result.scalar_one_or_none()
+        if not result:
+            raise HTTPException(status_code=404, detail=f"User {username} not found")
+        
+        return result
